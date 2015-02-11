@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import com.amazonaws.AmazonClientException;
@@ -66,8 +67,8 @@ public class S3Sample {
         Region usWest2 = Region.getRegion(Regions.US_WEST_2);
         s3.setRegion(usWest2);
 
-        String bucketName = "my-first-s3-bucket-" + UUID.randomUUID();
-        String key = "MyObjectKey";
+        String bucketName = "testwithobject" + UUID.randomUUID();
+        String key = "newlevels";
 
         System.out.println("===========================================");
         System.out.println("Getting Started with Amazon S3");
@@ -82,8 +83,9 @@ public class S3Sample {
              * You can optionally specify a location for your bucket if you want to
              * keep your data closer to your applications or users.
              */
-            System.out.println("Creating bucket " + bucketName + "\n");
+            System.out.println("Creating bucket " + bucketName  +  "\n");
             s3.createBucket(bucketName);
+            System.out.println(bucketName + "has been created successfully !!!");
 
             /*
              * List the buckets in your account
@@ -103,6 +105,8 @@ public class S3Sample {
              * specific to your applications.
              */
             System.out.println("Uploading a new object to S3 from a file\n");
+//            File newFile = new File("C:\\Users\\Kennedy.Torkura\\Downloads\\SecureDownloadManager.txt");
+//            Path newOne =
             s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));
 
             /*
@@ -144,16 +148,16 @@ public class S3Sample {
              * Delete an object - Unless versioning has been turned on for your bucket,
              * there is no way to undelete an object, so use caution when deleting objects.
              */
-            System.out.println("Deleting an object\n");
-            s3.deleteObject(bucketName, key);
+//            System.out.println("Deleting an object\n");
+//            s3.deleteObject(bucketName, key);
 
             /*
              * Delete a bucket - A bucket must be completely empty before it can be
              * deleted, so remember to delete any objects from your buckets before
              * you try to delete them.
              */
-            System.out.println("Deleting bucket " + bucketName + "\n");
-            s3.deleteBucket(bucketName);
+//            System.out.println("Deleting bucket " + bucketName + "\n");
+//            s3.deleteBucket(bucketName);
         } catch (AmazonServiceException ase) {
             System.out.println("Caught an AmazonServiceException, which means your request made it "
                     + "to Amazon S3, but was rejected with an error response for some reason.");
@@ -180,11 +184,11 @@ public class S3Sample {
      */
     private static File createSampleFile() throws IOException {
         File file = File.createTempFile("aws-java-sdk-", ".txt");
-        file.deleteOnExit();
+//        file.deleteOnExit();
 
         Writer writer = new OutputStreamWriter(new FileOutputStream(file));
-        writer.write("abcdefghijklmnopqrstuvwxyz\n");
-        writer.write("01234567890112345678901234\n");
+        writer.write("this is a test transmission of\n");
+        writer.write("my signed URL generation request\n");
         writer.write("!@#$%^&*()-=[]{};':',.<>/?\n");
         writer.write("01234567890112345678901234\n");
         writer.write("abcdefghijklmnopqrstuvwxyz\n");
