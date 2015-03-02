@@ -23,10 +23,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.UUID;
+
+import org.apache.log4j.Logger;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -52,7 +57,12 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
  * users) before you try to run this sample.
  */
 public class S3Sample {
-
+	
+	
+	static Logger log = Logger.getLogger(S3Sample.class.getName());
+	static Date date = new Date ();
+	
+	
     public static void main(String[] args) throws IOException {
         /*
          * Create your credentials file at ~/.aws/credentials (C:\Users\USER_NAME\.aws\credentials for Windows users) 
@@ -62,7 +72,18 @@ public class S3Sample {
          * aws_access_key_id = YOUR_ACCESS_KEY_ID
          * aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
          */
-
+    	AWSCredentials credentials = null;
+    	try {
+			credentials = new ProfileCredentialsProvider().getCredentials();
+		} catch (Exception e) {
+			throw new AmazonClientException("Cannot load the credentials from the credential profiles file. " +
+					 "Please make sure that your credentials file is at the correct " +
+					 "location (~/.aws/credentials), and is in valid format.", e);
+			
+			 
+		}
+    	
+		
         AmazonS3 s3 = new AmazonS3Client();
         Region usWest2 = Region.getRegion(Regions.US_WEST_2);
         s3.setRegion(usWest2);
@@ -107,7 +128,8 @@ public class S3Sample {
             System.out.println("Uploading a new object to S3 from a file\n");
 //            File newFile = new File("C:\\Users\\Kennedy.Torkura\\Downloads\\SecureDownloadManager.txt");
 //            Path newOne =
-            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));
+            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));   
+            log.trace("Success, this is an debug message at " + date );
 
             /*
              * Download an object - When you download an object, you get all of
