@@ -1,0 +1,20 @@
+#Define the root logger with appenderfile
+#log = C:\\Users\\Kennedy\\logging
+#log4j.rootLogger = WARN, FILE
+
+# Define the file appender
+#log4j.appender.FILE=org.apache.log4j.FileAppender
+#log4j.appender.FILE.File=${log}/AWSlogging.out
+
+#Define the layout for the file appender
+#log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
+#log4j.appender.FILE.layout.conversionPattern=%m%n
+
+log4j.rootLogger=INFO, FILE
+log4j.appender.FILE=org.apache.log4j.ConsoleAppender
+log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.File=${log}/log.out
+log4j.appender.FILE.layout.ConversionPattern=%d [%t] %-5p %c -  %m%n
+# Turn on DEBUG logging in com.amazonaws.request to log
+# a summary of requests/responses with AWS request IDs
+log4j.logger.com.amazonaws.request=INFO

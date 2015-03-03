@@ -1,4 +1,4 @@
-package com.amazonaws.samples;
+package com.amazonaws.tests;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

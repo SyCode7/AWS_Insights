@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazonaws.samples;
+package com.amazonaws.tests;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,10 +23,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -50,14 +55,19 @@ public class S3Connection {
 	
 	
 	static Logger log = Logger.getLogger(S3Connection.class.getName());
-	static Date date = new Date ();
+	static Date timeUploaded = new Date ();
+	static Date timeLogged = new Date ();
+	static Date timeDownloaded = new Date ();
+	static long startTime = System.nanoTime();
+	static long elapsedTime = System.nanoTime() - startTime;
+			
 	static File file = new File("C:\\Users\\Kennedy\\testfiles\\LogInfo");
-	String log4jConfPath = "/path/to/log4j.properties";
-	PropertyConfigurator.configure(log4jConfPath);
 	
 	
 	
     public static void main(String[] args) throws IOException {
+    	String log4jConfPath = "E:\\git\\AWS_Insights\\src\\AWS_S3_Logger";
+    	PropertyConfigurator.configure(log4jConfPath);
         
     	AWSCredentials credentials = null;
     	try {
@@ -99,15 +109,16 @@ public class S3Connection {
             s3.putObject(bucketName, key, file);
             BucketLoggingConfiguration loggingINfo = s3.getBucketLoggingConfiguration(bucketName);
             System.out.println("getBucketLoggingConfiguration is" + loggingINfo ) ;
+            System.out.println("file uploaded at " + timeUploaded);
             
 //        	PutObjectRequest uploadFile = new PutObjectRequest (bucketName, key, file);
 
 
            
 //            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));   
-            log.trace("Success, this is an debug message at " + date );
+            log.trace("Success, this is an debug message at " + timeLogged );
 
-            System.out.println("Downloading an object");
+            System.out.println("Downloading an object at time : " + timeDownloaded);
             s3.getObject(bucketName, key);
 //            S3Object object = s3.getObject(new GetObjectRequest(bucketName, key));
 //            System.out.println("Content-Type: "  + object.getObjectMetadata().getContentType());
@@ -123,6 +134,8 @@ public class S3Connection {
                         "(size = " + objectSummary.getSize() + ")");
             }
             System.out.println();
+            System.out.println("Elapsed time is " + elapsedTime + " seconds");
+
 
              /*
              * Delete a bucket - A bucket must be completely empty before it can be
@@ -187,6 +200,16 @@ public class S3Connection {
             System.out.println("    " + line);
         }
         System.out.println();
+    }
+    
+    private String encryptObject(String encryptionValue) throws NoSuchAlgorithmException{
+    	
+    	KeyGenerator keyOne = KeyGenerator.getInstance("AES");
+    	keyOne.init(256);
+    	SecretKey sKey = keyOne.generateKey();
+    	
+    	return encryptionValue;
+    	
     }
 
 }
