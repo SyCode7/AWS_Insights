@@ -37,6 +37,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketLoggingConfiguration;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -44,34 +45,20 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
-/**
- * This sample demonstrates how to make basic requests to Amazon S3 using
- * the AWS SDK for Java.
- * <p>
- * <b>Prerequisites:</b> You must have a valid Amazon Web Services developer
- * account, and be signed up to use Amazon S3. For more information on
- * Amazon S3, see http://aws.amazon.com/s3.
- * <p>
- * <b>Important:</b> Be sure to fill in your AWS access credentials in
- * ~/.aws/credentials (C:\Users\USER_NAME\.aws\credentials for Windows
- * users) before you try to run this sample.
- */
-public class S3Sample {
+
+public class S3Connection {
 	
 	
-	static Logger log = Logger.getLogger(S3Sample.class.getName());
+	static Logger log = Logger.getLogger(S3Connection.class.getName());
 	static Date date = new Date ();
+	static File file = new File("C:\\Users\\Kennedy\\testfiles\\LogInfo");
+	String log4jConfPath = "/path/to/log4j.properties";
+	PropertyConfigurator.configure(log4jConfPath);
+	
 	
 	
     public static void main(String[] args) throws IOException {
-        /*
-         * Create your credentials file at ~/.aws/credentials (C:\Users\USER_NAME\.aws\credentials for Windows users) 
-         * and save the following lines after replacing the underlined values with your own.
-         *
-         * [default]
-         * aws_access_key_id = YOUR_ACCESS_KEY_ID
-         * aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
-         */
+        
     	AWSCredentials credentials = null;
     	try {
 			credentials = new ProfileCredentialsProvider().getCredentials();
@@ -88,74 +75,45 @@ public class S3Sample {
         Region usWest2 = Region.getRegion(Regions.US_WEST_2);
         s3.setRegion(usWest2);
 
-        String bucketName = "testwithobject" + UUID.randomUUID();
-        String key = "newlevels";
+        String bucketName = "testing020315";
+        String key = "loggingFile";
 
-        System.out.println("===========================================");
-        System.out.println("Getting Started with Amazon S3");
-        System.out.println("===========================================\n");
 
         try {
-            /*
-             * Create a new S3 bucket - Amazon S3 bucket names are globally unique,
-             * so once a bucket name has been taken by any user, you can't create
-             * another bucket with that same name.
-             *
-             * You can optionally specify a location for your bucket if you want to
-             * keep your data closer to your applications or users.
-             */
-            System.out.println("Creating bucket " + bucketName  +  "\n");
-            s3.createBucket(bucketName);
-            System.out.println(bucketName + "has been created successfully !!!");
 
-            /*
-             * List the buckets in your account
-             */
-            System.out.println("Listing buckets");
+//            System.out.println("Creating bucket " + bucketName  +  "\n");
+//            s3.createBucket(bucketName);
+//            System.out.println(bucketName + "has been created successfully !!!");
+//
+//            /*
+//             * List the buckets in your account
+//             */
+            System.out.println("Listing objects in bucket :" + bucketName);
             for (Bucket bucket : s3.listBuckets()) {
                 System.out.println(" - " + bucket.getName());
             }
             System.out.println();
 
-            /*
-             * Upload an object to your bucket - You can easily upload a file to
-             * S3, or upload directly an InputStream if you know the length of
-             * the data in the stream. You can also specify your own metadata
-             * when uploading to S3, which allows you set a variety of options
-             * like content-type and content-encoding, plus additional metadata
-             * specific to your applications.
-             */
+           
             System.out.println("Uploading a new object to S3 from a file\n");
-//            File newFile = new File("C:\\Users\\Kennedy.Torkura\\Downloads\\SecureDownloadManager.txt");
-//            Path newOne =
-            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));   
+            s3.putObject(bucketName, key, file);
+            BucketLoggingConfiguration loggingINfo = s3.getBucketLoggingConfiguration(bucketName);
+            System.out.println("getBucketLoggingConfiguration is" + loggingINfo ) ;
+            
+//        	PutObjectRequest uploadFile = new PutObjectRequest (bucketName, key, file);
+
+
+           
+//            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));   
             log.trace("Success, this is an debug message at " + date );
 
-            /*
-             * Download an object - When you download an object, you get all of
-             * the object's metadata and a stream from which to read the contents.
-             * It's important to read the contents of the stream as quickly as
-             * possibly since the data is streamed directly from Amazon S3 and your
-             * network connection will remain open until you read all the data or
-             * close the input stream.
-             *
-             * GetObjectRequest also supports several other options, including
-             * conditional downloading of objects based on modification times,
-             * ETags, and selectively downloading a range of an object.
-             */
             System.out.println("Downloading an object");
-            S3Object object = s3.getObject(new GetObjectRequest(bucketName, key));
-            System.out.println("Content-Type: "  + object.getObjectMetadata().getContentType());
-            displayTextInputStream(object.getObjectContent());
+            s3.getObject(bucketName, key);
+//            S3Object object = s3.getObject(new GetObjectRequest(bucketName, key));
+//            System.out.println("Content-Type: "  + object.getObjectMetadata().getContentType());
+//            displayTextInputStream(object.getObjectContent());
 
-            /*
-             * List objects in your bucket by prefix - There are many options for
-             * listing the objects in your bucket.  Keep in mind that buckets with
-             * many objects might truncate their results when listing their objects,
-             * so be sure to check if the returned object listing is truncated, and
-             * use the AmazonS3.listNextBatchOfObjects(...) operation to retrieve
-             * additional results.
-             */
+           
             System.out.println("Listing objects");
             ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
                     .withBucketName(bucketName)
@@ -166,14 +124,7 @@ public class S3Sample {
             }
             System.out.println();
 
-            /*
-             * Delete an object - Unless versioning has been turned on for your bucket,
-             * there is no way to undelete an object, so use caution when deleting objects.
-             */
-//            System.out.println("Deleting an object\n");
-//            s3.deleteObject(bucketName, key);
-
-            /*
+             /*
              * Delete a bucket - A bucket must be completely empty before it can be
              * deleted, so remember to delete any objects from your buckets before
              * you try to delete them.
@@ -204,20 +155,20 @@ public class S3Sample {
      *
      * @throws IOException
      */
-    private static File createSampleFile() throws IOException {
-        File file = File.createTempFile("aws-java-sdk-", ".txt");
-//        file.deleteOnExit();
-
-        Writer writer = new OutputStreamWriter(new FileOutputStream(file));
-        writer.write("this is a test transmission of\n");
-        writer.write("my signed URL generation request\n");
-        writer.write("!@#$%^&*()-=[]{};':',.<>/?\n");
-        writer.write("01234567890112345678901234\n");
-        writer.write("abcdefghijklmnopqrstuvwxyz\n");
-        writer.close();
-
-        return file;
-    }
+//    private static File createSampleFile() throws IOException {
+//        File file = File.createTempFile("aws-java-sdk-", ".txt");
+////        file.deleteOnExit();
+//
+//        Writer writer = new OutputStreamWriter(new FileOutputStream(file));
+//        writer.write("this is a test transmission of\n");
+//        writer.write("my signed URL generation request\n");
+//        writer.write("!@#$%^&*()-=[]{};':',.<>/?\n");
+//        writer.write("01234567890112345678901234\n");
+//        writer.write("abcdefghijklmnopqrstuvwxyz\n");
+//        writer.close();
+//
+//        return file;
+//    }
 
     /**
      * Displays the contents of the specified input stream as text.
